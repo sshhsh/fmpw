@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:binary/binary.dart';
 import 'package:cryptography/cryptography.dart';
 
 // blockXOR XORs numbers from dst with n numbers from src.
@@ -12,7 +11,7 @@ void blockXOR(Uint32List dst, Uint32List src, int n) {
 
 extension RotateLeft32 on int {
   int rotateLeft32(int n) {
-    var x = this & 0xffffffff;
+    final x = this & 0xffffffff;
     return (x << n | x >> (32 - n)) & 0xffffffff;
   }
 }
@@ -74,7 +73,7 @@ void salsaXOR(Uint32List tmp, Uint32List inp, Uint32List out) {
 }
 
 void blockMix(Uint32List inp, Uint32List out, int r) {
-  var tmp = inp.sublist((2 * r - 1) * 16, 2 * r * 16);
+  final tmp = inp.sublist((2 * r - 1) * 16, 2 * r * 16);
   for (var i = 0; i < 2 * r; i += 2) {
     salsaXOR(tmp, Uint32List.sublistView(inp, i * 16),
         Uint32List.sublistView(out, i * 8));
@@ -84,13 +83,13 @@ void blockMix(Uint32List inp, Uint32List out, int r) {
 }
 
 int integer(Uint32List b, int r) {
-  var j = (2 * r - 1) * 16;
+  final j = (2 * r - 1) * 16;
   return b[j] | b[j + 1] << 32;
 }
 
 void smix(Uint8List b, int r, int N, Uint32List v, Uint32List x, Uint32List y) {
-  var R = 32 * r;
-  var bView = ByteData.sublistView(b);
+  final R = 32 * r;
+  final bView = ByteData.sublistView(b);
   for (var i = 0, j = 0; i < x.length; i++, j += 4) {
     x[i] = bView.getUint32(j, Endian.little);
   }
@@ -129,9 +128,9 @@ Future<Uint8List> scrypt(
     throw Exception("scrypt: parameters are too large");
   }
 
-  var x = Uint32List(32 * r);
-  var y = Uint32List(32 * r);
-  var v = Uint32List(32 * N * r);
+  final x = Uint32List(32 * r);
+  final y = Uint32List(32 * r);
+  final v = Uint32List(32 * N * r);
 
   // var b = pbkdf2(passphrase, salt, 1, p * 128 * r, "SHA-256");
   final b = Uint8List.fromList(await (await Pbkdf2(
@@ -147,7 +146,6 @@ Future<Uint8List> scrypt(
   for (var i = 0; i < p; i++) {
     smix(Uint8List.sublistView(b, i * 128 * r), r, N, v, x, y);
   }
-
   return Uint8List.fromList(await (await Pbkdf2(
     macAlgorithm: Hmac.sha256(),
     iterations: 1,
@@ -160,7 +158,10 @@ Future<Uint8List> scrypt(
 }
 
 Future main(List<String> args) async {
-  var a = DateTime.now().microsecondsSinceEpoch;
+  var a = 0;
+  var b = 0;
   print(await scrypt(Uint8List.fromList([0,0,0,0]), Uint8List.fromList([0,0,0,0]), 32768/*= n*/, 8/*= r*/, 2/*= p*/, 64));
-  print(DateTime.now().microsecondsSinceEpoch - a);
+  print(b = a += 2);
+  print(a);
+  print(b);
 }
