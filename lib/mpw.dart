@@ -17,12 +17,14 @@ class MPW {
   Future<Uint8List> key;
   MPW(String name, String password) : key = calculateKeyInBack(name, password);
 
-  static Future<Uint8List> calculateKeyInBack(String nameStr, String passwordStr) async {
+  static Future<Uint8List> calculateKeyInBack(
+      String nameStr, String passwordStr) async {
     final p = ReceivePort();
-    await Isolate.spawn(_returnKeyInBack, _Send(p.sendPort, nameStr, passwordStr));
+    await Isolate.spawn(
+        _returnKeyInBack, _Send(p.sendPort, nameStr, passwordStr));
     return await p.first as Uint8List;
   }
-  
+
   static Future<void> _returnKeyInBack(_Send send) async {
     final key = await calculateKey(send.nameStr, send.passwordStr);
     print(key);

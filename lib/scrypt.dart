@@ -156,12 +156,3 @@ Future<Uint8List> scrypt(
   ))
       .extractBytes());
 }
-
-Future main(List<String> args) async {
-  var a = 0;
-  var b = 0;
-  print(await scrypt(Uint8List.fromList([0,0,0,0]), Uint8List.fromList([0,0,0,0]), 32768/*= n*/, 8/*= r*/, 2/*= p*/, 64));
-  print(b = a += 2);
-  print(a);
-  print(b);
-}
