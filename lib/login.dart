@@ -30,6 +30,7 @@ class _LoginState extends State<Login> {
                     setState(() {});
                   }),
               TextField(
+                  obscureText: true,
                   controller: password,
                   onChanged: (_) {
                     setState(() {});

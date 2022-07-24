@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:fmpw/login.dart';
+import 'package:fmpw/sites.dart';
 
 import 'mpw.dart';
 
@@ -36,24 +37,23 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  Future<String> generate(SiteModel siteModel) async {
+    if (siteModel.site.isEmpty) {
+      return "";
+    }
+    return mpw!.generate(siteModel.site, counter: siteModel.count, template: siteModel.template);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MPWContainer(
       model: this,
       login: login,
+      logout: logout,
+      generate: generate,
       child: mpw == null
           ? const Login()
-          : FutureBuilder(
-              future: mpw!.key,
-              builder:
-                  (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
-                print(mpw);
-                if (snapshot.hasData) {
-                  return const Text("logged");
-                } else {
-                  return const Text("Logging");
-                }
-              }),
+          : const Sites(),
     );
   }
 }
@@ -62,13 +62,17 @@ class MPWContainer extends InheritedWidget {
   static MPWContainer? of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<MPWContainer>();
   final MyAppState model;
-  final void Function(String name, String password) login;
+  final void Function(String, String) login;
+  final void Function() logout;
+  final Future<String> Function(SiteModel) generate;
 
   const MPWContainer({
     Key? key,
     required this.model,
     required Widget child,
     required this.login,
+    required this.logout,
+    required this.generate,
   }) : super(key: key, child: child);
 
   @override
