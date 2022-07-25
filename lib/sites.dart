@@ -14,7 +14,6 @@ class Sites extends StatefulWidget {
 
 class _SitesState extends State<Sites> {
   SiteModel siteModel = SiteModel("", "long", 1);
-  TextEditingController edit = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -105,31 +104,31 @@ class _SitesState extends State<Sites> {
                       future: MPWContainer.of(context)!.generate(siteModel),
                       builder: (BuildContext buildContext,
                           AsyncSnapshot<String> asyncSnapshot) {
-                        edit.text = asyncSnapshot.data ?? "";
-                        return TextField(
-                          readOnly: true,
-                          textAlign: TextAlign.center,
-                          controller: edit,
-                          style: const TextStyle(fontSize: 40),
-                          onTap: () {
-                            setState(() {
-                              MPWContainer.of(context)!.addSite(siteModel);
-
-                            edit.selection = TextSelection(
-                                baseOffset: 0, extentOffset: edit.text.length);
-                            Clipboard.setData(ClipboardData(text: edit.text));
-                            });
-
-                          },
-                        );
+                        var text = asyncSnapshot.data ?? "";
+                        return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                MPWContainer.of(context)!.addSite(siteModel);
+                                Clipboard.setData(ClipboardData(text: text));
+                              });
+                            },
+                            child: Text(
+                              text,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 40),
+                            ));
                       })),
               const Spacer(),
               Flexible(
                   flex: 6,
                   child: ListView.builder(
+                      itemExtent: 20,
                       itemCount: sites.length,
                       itemBuilder: (context, index) {
-                        return Text(sites.keys.elementAt(index));
+                        return Text(
+                          sites.keys.elementAt(index),
+                          key: Key(sites.keys.elementAt(index)),
+                        );
                       }))
             ],
           )),
