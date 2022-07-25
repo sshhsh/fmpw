@@ -2,14 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'main.dart';
+import 'model.dart';
 import 'mpw.dart';
-
-class SiteModel {
-  String site;
-  String template;
-  int count;
-  SiteModel(this.site, this.template, this.count);
-}
 
 class Sites extends StatefulWidget {
   const Sites({Key? key}) : super(key: key);
@@ -24,11 +18,13 @@ class _SitesState extends State<Sites> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, SiteModel> sites =
+        MPWContainer.of(context)?.model.sites?.sites ?? {};
     return Scaffold(
         body: Align(
       alignment: const AlignmentDirectional(0, 0),
       child: Container(
-          width: 500,
+          width: 800,
           height: 300,
           alignment: Alignment.center,
           child: Column(
@@ -37,7 +33,7 @@ class _SitesState extends State<Sites> {
               Flexible(
                   flex: 3,
                   child: SizedBox(
-                    width: 220,
+                    width: 240,
                     child: TextField(
                       onChanged: (value) {
                         setState(() {
@@ -50,13 +46,15 @@ class _SitesState extends State<Sites> {
               Flexible(
                   flex: 3,
                   child: SizedBox(
-                    width: 220,
+                    width: 240,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
                             flex: 3,
                             child: DropdownButton<String>(
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(20)),
                                 value: siteModel.template,
                                 items: MPW.templates.keys
                                     .map((value) => DropdownMenuItem(
@@ -107,18 +105,32 @@ class _SitesState extends State<Sites> {
                       future: MPWContainer.of(context)!.generate(siteModel),
                       builder: (BuildContext buildContext,
                           AsyncSnapshot<String> asyncSnapshot) {
-                            edit.text = asyncSnapshot.data ?? "";
+                        edit.text = asyncSnapshot.data ?? "";
                         return TextField(
                           readOnly: true,
                           textAlign: TextAlign.center,
                           controller: edit,
                           style: const TextStyle(fontSize: 40),
                           onTap: () {
-                            edit.selection = TextSelection(baseOffset: 0, extentOffset: edit.text.length);
+                            setState(() {
+                              MPWContainer.of(context)!.addSite(siteModel);
+
+                            edit.selection = TextSelection(
+                                baseOffset: 0, extentOffset: edit.text.length);
                             Clipboard.setData(ClipboardData(text: edit.text));
+                            });
+
                           },
                         );
                       })),
+              const Spacer(),
+              Flexible(
+                  flex: 6,
+                  child: ListView.builder(
+                      itemCount: sites.length,
+                      itemBuilder: (context, index) {
+                        return Text(sites.keys.elementAt(index));
+                      }))
             ],
           )),
     ));

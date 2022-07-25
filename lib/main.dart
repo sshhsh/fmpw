@@ -1,10 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:fmpw/login.dart';
-import 'package:fmpw/sites.dart';
 
+import 'login.dart';
+import 'model.dart';
 import 'mpw.dart';
+import 'sites.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -25,15 +24,18 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   MPW? mpw;
+  UserSites? sites;
   void login(String name, String password) {
     setState(() {
       mpw = MPW(name, password);
+      sites = UserSites(name, {});
     });
   }
 
   void logout() {
     setState(() {
       mpw = null;
+      sites = null;
     });
   }
 
@@ -41,7 +43,15 @@ class MyAppState extends State<MyApp> {
     if (siteModel.site.isEmpty) {
       return "";
     }
-    return mpw!.generate(siteModel.site, counter: siteModel.count, template: siteModel.template);
+    return mpw!.generate(siteModel.site,
+        counter: siteModel.count, template: siteModel.template);
+  }
+
+  void addSite(SiteModel siteModel) {
+    setState(() {
+      sites?.sites.remove(siteModel.site);
+      sites?.sites[siteModel.site] = siteModel;
+    });
   }
 
   @override
@@ -51,9 +61,8 @@ class MyAppState extends State<MyApp> {
       login: login,
       logout: logout,
       generate: generate,
-      child: mpw == null
-          ? const Login()
-          : const Sites(),
+      addSite: addSite,
+      child: mpw == null ? const Login() : const Sites(),
     );
   }
 }
@@ -65,6 +74,7 @@ class MPWContainer extends InheritedWidget {
   final void Function(String, String) login;
   final void Function() logout;
   final Future<String> Function(SiteModel) generate;
+  final Function(SiteModel) addSite;
 
   const MPWContainer({
     Key? key,
@@ -73,6 +83,7 @@ class MPWContainer extends InheritedWidget {
     required this.login,
     required this.logout,
     required this.generate,
+    required this.addSite,
   }) : super(key: key, child: child);
 
   @override
