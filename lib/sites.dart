@@ -19,21 +19,54 @@ class _SitesState extends State<Sites> {
   Widget build(BuildContext context) {
     final Map<String, SiteModel> sites =
         MPWContainer.of(context)?.model.sites?.sites ?? {};
+
+    final siteNames = sites.keys.toList().reversed.toList();
+
+    final TextEditingController _nameController = TextEditingController();
+    final TextEditingController _templateController = TextEditingController();
+
     return Scaffold(
         body: Align(
       alignment: const AlignmentDirectional(0, 0),
       child: Container(
-          width: 800,
-          height: 300,
+          width: 500,
+          height: 500,
           alignment: Alignment.center,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(
+                  flex: 6,
+                  child: Scrollbar(
+                      child: ListView.builder(
+                          itemCount: sites.length,
+                          reverse: true,
+                          itemBuilder: (context, index) {
+                            final siteName = siteNames[index];
+                            return ListTile(
+                              title: Text(
+                                siteName,
+                                key: Key(siteName),
+                                textAlign: TextAlign.center,
+                              ),
+                              onTap: () {
+                                print(index);
+                                setState(() {
+                                  siteModel.site = sites[siteName]!.site;
+                                  _nameController.text = siteModel.site;
+                                  siteModel.count = sites[siteName]!.count;
+                                  siteModel.template = sites[siteName]!.template;
+                                });
+                              },
+                            );
+                          }))),
+              const Spacer(),
+              Flexible(
                   flex: 3,
                   child: SizedBox(
                     width: 240,
                     child: TextField(
+                      controller: _nameController,
                       onChanged: (value) {
                         setState(() {
                           siteModel.site = value;
@@ -118,18 +151,6 @@ class _SitesState extends State<Sites> {
                               style: const TextStyle(fontSize: 40),
                             ));
                       })),
-              const Spacer(),
-              Flexible(
-                  flex: 6,
-                  child: ListView.builder(
-                      itemExtent: 20,
-                      itemCount: sites.length,
-                      itemBuilder: (context, index) {
-                        return Text(
-                          sites.keys.elementAt(index),
-                          key: Key(sites.keys.elementAt(index)),
-                        );
-                      }))
             ],
           )),
     ));

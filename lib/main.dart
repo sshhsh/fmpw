@@ -43,6 +43,7 @@ class MyAppState extends State<MyApp> {
     if (siteModel.site.isEmpty) {
       return "";
     }
+    print(siteModel.site);
     return mpw!.generate(siteModel.site,
         counter: siteModel.count, template: siteModel.template);
   }
